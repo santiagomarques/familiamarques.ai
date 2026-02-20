@@ -6,7 +6,8 @@ st.subheader("Bem-vindos ao nosso projeto!")
 
 if st.button('Ativar Comemoração!'):
     st.balloons()
-    st.success("O site está online, Santiago! 🎉")import streamlit as st
+    st.success("O site está online, Santiago! 🎉")        
+import streamlit as st
 from io import BytesIO
 import time
 

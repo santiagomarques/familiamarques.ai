@@ -1,69 +1,53 @@
 import streamlit as st
 
-# 1. Configuração da Página e Estilo Visual (CSS)
-st.set_page_config(page_title="Família Marques AI", page_icon="🏠", layout="wide")
+# 1. Configuração de Estilo (O que faz o site ficar BONITO)
+st.set_page_config(page_title="Família Marques AI", page_icon="🤖", layout="wide")
 
-# Aqui é onde a magia acontece para não ficar "uma merda"
 st.markdown("""
     <style>
-    /* Mudar o fundo de todo o site */
     .stApp {
-        background: linear-gradient(to right, #1e3c72, #2a5298);
-        color: white;
+        background-color: #0e1117;
+        background-image: radial-gradient(circle at 2px 2px, #1d2129 1px, transparent 0);
+        background-size: 40px 40px;
+        color: #ffffff;
     }
-    
-    /* Estilo do Título */
-    h1 {
-        color: #00d2ff;
-        font-family: 'Helvetica Neue', sans-serif;
+    .main-title {
+        font-size: 50px;
+        font-weight: bold;
+        color: #00f2fe;
         text-align: center;
-        text-shadow: 2px 2px 4px #000000;
+        text-shadow: 0 0 10px #00f2fe;
     }
-
-    /* Estilo das caixas de texto */
-    .stMarkdown {
-        font-size: 1.2rem;
-        text-align: center;
-    }
-
-    /* Botão personalizado */
     .stButton>button {
-        background-color: #00d2ff;
+        background: linear-gradient(45deg, #00f2fe, #4facfe);
         color: white;
-        border-radius: 50px;
         border: none;
+        border-radius: 10px;
         padding: 10px 20px;
         font-weight: bold;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #fff;
-        color: #1e3c72;
-        transform: scale(1.05);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Conteúdo do Site
-st.title("🏠 Família Marques AI")
-st.markdown("### O nosso portal inteligente e exclusivo")
-
+# 2. Título Impactante
+st.markdown('<p class="main-title">🤖 Família Marques AI Portal</p>', unsafe_allow_html=True)
 st.write("---")
 
-# Criar colunas para organizar melhor
-col1, col2, col3 = st.columns([1, 2, 1])
+# 3. Organização em Colunas
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.header("⚡ O Nosso Painel")
+    st.info("Aqui vamos ligar a Inteligência Artificial e o nosso mural.")
+    if st.button('🚀 Ativar Sistema'):
+        st.balloons()
+        st.success("SISTEMA MARQUES ONLINE!")
 
 with col2:
-    st.info("Bem-vindos! Este site foi criado pelo Santiago para unir a tecnologia e a nossa família.")
-    
-    nome = st.text_input("Como te chamas, membro da família?")
-    if nome:
-        st.write(f"Olá, **{nome}**! É bom ver-te por aqui hoje.")
+    st.header("💬 Chat da Família")
+    st.chat_input("Escreve aqui a tua ideia...")
+    st.caption("Aguardando configuração da API Key do Google...")
 
 st.write("---")
-
-# Botão de Celebração
-if st.button('✨ LANÇAR CELEBRAÇÃO DA FAMÍLIA!'):
-    st.balloons()
-    st.snow()
-    st.success("A Família Marques é a melhor! 🎉")
+st.subheader("🖼️ Mural do Futuro")
+# Aqui vai entrar a imagem que vou gerar para ti agora

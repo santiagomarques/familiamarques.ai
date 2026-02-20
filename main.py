@@ -6,12 +6,11 @@ from PIL import Image, ImageDraw
 import io
 import requests  # Para APIs externas
 import os
-import json
-from openai import OpenAI  # Para IA real
+import jsonfrom openai 
+import OpenAI 
 import streamlit.components.v1 as components  # Para JS custom
 import hashlib
 import hmac
-
 # Configurações iniciais
 APP_TITLE = "Família Marques AI - Hacker Family 2026"
 OWNER_NAME = "Santiago Marques"

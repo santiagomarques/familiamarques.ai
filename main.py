@@ -1,192 +1,122 @@
 import streamlit as st
+import google.generativeai as genai
 from datetime import datetime
 import time
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Família Marques AI", page_icon="⚡", layout="wide")
+# --- CONFIGURAÇÃO INICIAL ---
+st.set_page_config(page_title="Família Marques AI", layout="wide")
 
-# --- ESTILO HACKER 2026 (CSS) ---
+# --- ESTILO HACKER FAMÍLIA 2026 (O Visual que pediste) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&display=swap');
-    
-    .stApp {
-        background-color: #050505;
-        color: #00ff41;
-        font-family: 'Fira Code', monospace;
-    }
-    
-    /* Login Box */
-    .login-box {
-        border: 2px solid #00ff41;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px #00ff41;
-        background: rgba(0, 20, 0, 0.9);
-    }
-    
-    /* Sidebar Personalizada */
-    section[data-testid="stSidebar"] {
-        background-color: #000c00 !important;
-        border-right: 1px solid #00ff41;
-    }
-
-    /* Botões Hacker */
-    .stButton>button {
-        border: 1px solid #00ff41 !important;
-        background: transparent !important;
-        color: #00ff41 !important;
-        transition: 0.3s;
-        text-transform: uppercase;
-        width: 100%;
-    }
-    .stButton>button:hover {
-        background: #00ff41 !important;
-        color: black !important;
-        box-shadow: 0 0 15px #00ff41;
-    }
-
-    /* Mural */
-    .mural {
-        border: 1px dashed #00ff41;
-        padding: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+    .stApp { background-color: #000000; color: #00ff41; font-family: 'Courier New', monospace; }
+    .stTextInput>div>div>input { background-color: #050505 !important; color: #00ff41 !important; border: 1px solid #00ff41 !important; }
+    .stButton>button { background-color: #003300; color: #00ff41; border: 1px solid #00ff41; border-radius: 0px; width: 100%; }
+    .stButton>button:hover { background-color: #00ff41; color: #000; }
+    .sidebar .sidebar-content { background-color: #050505; border-right: 1px solid #00ff41; }
+    [data-testid="stMetricValue"] { color: #00ff41 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- BASE DE DADOS VOLÁTIL (Em memória) ---
+# --- BASE DE DADOS (Em Memória) ---
 if "users" not in st.session_state:
-    st.session_state.users = {
-        "Santiago Marques": {"pin": "1234", "level": "Jarvis", "bday": "2000-01-01", "loc": "Portugal"}
-    }
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "current_user" not in st.session_state:
-    st.session_state.current_user = None
-if "mural_msg" not in st.session_state:
-    st.session_state.mural_msg = "Bem-vindos ao Protocolo Família Marques 2026."
-if "bg_color" not in st.session_state:
-    st.session_state.bg_color = "#050505"
+    # Santiago já nasce como Jarvis
+    st.session_state.users = {"Santiago Marques": {"pin": "2026", "level": "Jarvis", "loc": "Portugal", "bday": "2010-01-01"}}
+if "logged_in" not in st.session_state: st.session_state.logged_in = False
+if "mural" not in st.session_state: st.session_state.mural = "Bem-vindos ao futuro. Protocolo Marques Ativo."
+if "chat_history" not in st.session_state: st.session_state.chat_history = []
+if "cart" not in st.session_state: st.session_state.cart = []
 
-# --- LÓGICA DE LOGIN ---
+# --- SISTEMA DE LOGIN ---
 if not st.session_state.logged_in:
-    cols = st.columns([1, 2, 1])
-    with cols[1]:
-        st.markdown("<div class='login-box'>", unsafe_allow_html=True)
-        st.title("🔐 ACESSO AO SISTEMA")
-        
-        mode = st.radio("Escolha:", ["Entrar", "Novo Registo"], horizontal=True)
-        
+    st.markdown("<h1 style='text-align: center;'>🔐 FAMÍLIA MARQUES AI: LOGIN</h1>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        modo_login = st.radio("Ação:", ["Entrar", "Novo Registo (1ª Vez)"])
         nome = st.text_input("NOME:")
-        pin = st.text_input("PIN:", type="password")
+        pin = st.text_input("PIN (4 dígitos):", type="password")
         
-        if mode == "Novo Registo":
-            bday = st.date_input("ANIVERSÁRIO:")
+        if modo_login == "Novo Registo (1ª Vez)":
             loc = st.selectbox("LOCALIZAÇÃO:", ["Portugal", "Brasil"])
-            foto = st.file_uploader("FOTO PERFIL:")
-            
-        if st.button("EXECUTAR LOGIN"):
-            if mode == "Entrar":
-                if nome in st.session_state.users and st.session_state.users[nome]["pin"] == pin:
-                    st.session_state.logged_in = True
-                    st.session_state.current_user = nome
-                    st.rerun()
-                else:
-                    st.error("PIN INVÁLIDO OU UTILIZADOR INEXISTENTE")
-            else:
-                st.session_state.users[nome] = {"pin": pin, "level": "Básico", "bday": str(bday), "loc": loc}
-                st.success("CONTA CRIADA. FAÇA LOGIN.")
-        st.markdown("</div>", unsafe_allow_html=True)
+            bday = st.date_input("DATA DE ANIVERSÁRIO:")
+            foto = st.file_uploader("FOTO DE PERFIL:")
+            if st.button("CRIAR CONTA"):
+                st.session_state.users[nome] = {"pin": pin, "level": "Membro", "loc": loc, "bday": str(bday)}
+                st.success("Conta criada! Agora muda para 'Entrar'.")
+        
+        if st.button("EXECUTAR ACESSO"):
+            if nome in st.session_state.users and st.session_state.users[nome]["pin"] == pin:
+                st.session_state.logged_in = True
+                st.session_state.user = nome
+                st.rerun()
+            else: st.error("ACESSO NEGADO: Dados incorretos.")
 
-# --- INTERFACE PRINCIPAL ---
+# --- PORTAL ATIVO ---
 else:
-    user_data = st.session_state.users[st.session_state.current_user]
-    is_admin = user_data["level"] == "Jarvis"
+    user = st.session_state.user
+    u_data = st.session_state.users[user]
+    is_jarvis = u_data["level"] == "Jarvis"
 
-    # --- SIDEBAR (Histórico e Níveis) ---
-    with st.sidebar:
-        st.header("📂 HISTÓRICO")
-        st.write("---")
-        st.caption("Logs de conversas antigas...")
-        
-        if is_admin:
-            st.write("---")
-            st.header("⚡ ADMIN: JARVIS")
-            if st.checkbox("VER BASE DE DADOS"):
-                st.write(st.session_state.users)
-            
-            new_mural = st.text_input("EDITAR MURAL:")
-            if st.button("ATUALIZAR"):
-                st.session_state.mural_msg = new_mural
-
-    # --- CABEÇALHO E INFO DIREITA ---
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c1:
-        st.markdown(f"**NÍVEL:** `{user_data['level']}`")
-    with c2:
-        st.markdown(f"<div class='mural'> {st.session_state.mural_msg} </div>", unsafe_allow_html=True)
-    with c3:
-        st.write(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
-        st.write(f"⏰ {datetime.now().strftime('%H:%M')}")
-        if st.button("🌦️ CLIMA"):
-            st.write("Céu Limpo | 22°C")
-            st.caption("Próximos dias: Sol constante")
-
-    # --- ANIVERSÁRIO ---
-    today = datetime.now().strftime('%m-%d')
-    if user_data['bday'][5:] == today:
+    # Verificação de Aniversário
+    if datetime.now().strftime('%m-%d') in u_data["bday"]:
         st.balloons()
-        st.success(f"🎂 FELIZ ANIVERSÁRIO, {st.session_state.current_user}!")
+        st.toast(f"🎂 FELIZ ANIVERSÁRIO, {user.upper()}!")
 
-    # --- MODOS ---
-    modo = st.selectbox("MODO DE OPERAÇÃO:", ["Fast 1.5", "Expert 4.0", "Shopping", "Study Focus"])
-
-    # --- ÁREA DE CHAT ---
-    chat_container = st.container()
-    
-    with chat_container:
-        for m in st.session_state.messages:
-            with st.chat_message(m["role"]):
-                st.write(m["content"])
-
-    # --- MODO SHOPPING ---
-    if modo == "Shopping":
-        st.warning("🛒 MODO COMPRAS ATIVO")
-        item = st.text_input("O QUE QUERES COMPRAR?")
-        if item:
-            moeda = "€" if user_data["loc"] == "Portugal" else "R$"
-            st.markdown(f"**RESULTADOS PARA:** {item}")
-            # Simulação de pesquisa
-            col_p, col_v, col_l = st.columns(3)
-            col_p.write(f"Produto: {item} Pro")
-            col_v.write(f"Preço: {moeda} 499.00")
-            col_l.write("[LINK DA LOJA](https://google.com)")
-            st.write("---")
-            st.write(f"**TOTAL DA SESSÃO:** {moeda} 499.00")
-
-    # --- INPUT DE IA ---
-    prompt = st.chat_input("Insira comando ou peça imagem...")
-    
-    if prompt:
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    # --- SIDEBAR (HISTÓRICO E INFO) ---
+    with st.sidebar:
+        st.title("📂 SISTEMA")
+        st.write(f"USER: {user}")
+        st.write(f"NÍVEL: {u_data['level']}")
+        st.write("---")
+        st.subheader("📜 HISTÓRICO")
+        for h in st.session_state.chat_history[-5:]: st.text(f"> {h[:20]}...")
         
-        # Lógica de mudar fundo se falar em imagem
-        if "imagem" in prompt.lower() or "carro" in prompt.lower():
-            st.session_state.bg_color = "#001a1a" # Muda tom do fundo
+        if is_jarvis:
+            st.header("🛠️ PAINEL JARVIS")
+            if st.checkbox("VER TODOS OS PINS"): st.write(st.session_state.users)
+            novo_mural = st.text_input("EDITAR MURAL:")
+            if st.button("POSTAR"): st.session_state.mural = novo_mural
+
+    # --- LAYOUT PRINCIPAL ---
+    c_left, c_right = st.columns([2, 1])
+
+    with c_right:
+        st.markdown(f"### 🕒 {datetime.now().strftime('%H:%M:%S')}")
+        st.markdown(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
+        if st.button("🌡️ CLIMA"): 
+            st.write("Hoje: 22°C - Céu Limpo")
+            st.write("Próximos 3 dias: ☀️ ☀️ ⛈️")
+        
+        st.markdown("---")
+        st.markdown(f"### 📢 MURAL\n> {st.session_state.mural}")
+
+    with c_left:
+        modo = st.selectbox("MODO IA:", ["Fast 1.5", "Expert 4.0", "Shopping 🛒", "Study Focus 📚"])
+        
+        # Chat
+        for m in st.session_state.chat_history:
+            st.text(m)
+
+        prompt = st.chat_input("Comando para a IA...")
+        
+        if prompt:
+            st.session_state.chat_history.append(f"VOCÊ: {prompt}")
             
-        # Resposta simulada (Para não depender de API paga agora)
-        response = f"Protocolo {modo} ativo. Percebo que estás focado. Aqui está a análise de: {prompt}"
-        
-        if "imagem" in prompt.lower():
-            response = "🎨 IMAGEM GERADA: [Espaço reservado para imagem da IA]"
-        
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
+            # Resposta Dinâmica
+            if modo == "Shopping 🛒":
+                moeda = "€" if u_data["loc"] == "Portugal" else "R$"
+                res = f"IA: Encontrei '{prompt}' pelo melhor preço de {moeda} 150.00 [LINK]"
+                st.session_state.cart.append(150.00)
+                st.write(f"**TOTAL CARRINHO:** {moeda} {sum(st.session_state.cart)}")
+            elif "imagem" in prompt.lower() or "carro" in prompt.lower():
+                res = "IA: Gerando imagem... [Fundo do site alterado para modo visual]"
+                st.markdown("<style>.stApp { background-image: url('https://source.unsplash.com/random/1600x900/?tech'); background-size: cover; }</style>", unsafe_allow_html=True)
+            else:
+                res = f"IA ({modo}): Processando comando... Protocolo Marques em execução."
+            
+            st.session_state.chat_history.append(res)
+            st.rerun()
 
-    # --- MODO ESTUDO ---
-    if modo == "Study Focus":
-        st.info("📚 MODO FOCO: Notificações silenciadas. IA em modo explicativo.")
+    # Tutorial para a primeira vez
+    if len(st.session_state.chat_history) < 2:
+        st.info("💡 BEM-VINDO: No lado ESQUERDO falas com a IA. No lado DIREITO tens as horas e o mural do Santiago. Usa os MODOS para mudar a postura da IA.")

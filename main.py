@@ -1,8 +1,13 @@
 import streamlit as st
-import qrcode
-import os
+
+st.set_page_config(page_title="Família Marques AI", page_icon="🏠")
+st.title("🏠 Família Marques AI")
+st.subheader("Bem-vindos ao nosso projeto!")
+
+if st.button('Ativar Comemoração!'):
+    st.balloons()
+    st.success("O site está online, Santiago! 🎉")import streamlit as st
 from io import BytesIO
-from PIL import Image
 import time
 
 # --- CONFIGURAÇÃO INICIAL ---

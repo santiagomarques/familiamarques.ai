@@ -1,59 +1,69 @@
 import streamlit as st
-import google.generativeai as genai
 
-# 1. Configuração Visual
-st.set_page_config(page_title="Família Marques AI", page_icon="🤖", layout="centered")
+# 1. Configuração da Página e Estilo Visual (CSS)
+st.set_page_config(page_title="Família Marques AI", page_icon="🏠", layout="wide")
 
-# Estilo para ficar mais bonito
+# Aqui é onde a magia acontece para não ficar "uma merda"
 st.markdown("""
     <style>
-    .main { background-color: #f0f2f6; }
-    .stButton>button { width: 100%; border-radius: 20px; height: 3em; background-color: #ff4b4b; color: white; }
+    /* Mudar o fundo de todo o site */
+    .stApp {
+        background: linear-gradient(to right, #1e3c72, #2a5298);
+        color: white;
+    }
+    
+    /* Estilo do Título */
+    h1 {
+        color: #00d2ff;
+        font-family: 'Helvetica Neue', sans-serif;
+        text-align: center;
+        text-shadow: 2px 2px 4px #000000;
+    }
+
+    /* Estilo das caixas de texto */
+    .stMarkdown {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    /* Botão personalizado */
+    .stButton>button {
+        background-color: #00d2ff;
+        color: white;
+        border-radius: 50px;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #fff;
+        color: #1e3c72;
+        transform: scale(1.05);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🤖 Família Marques AI")
+# 2. Conteúdo do Site
+st.title("🏠 Família Marques AI")
+st.markdown("### O nosso portal inteligente e exclusivo")
+
 st.write("---")
 
-# 2. Menu Lateral (Sidebar)
-with st.sidebar:
-    st.header("⚙️ Definições")
-    api_key = st.text_input("Insere a tua Google API Key:", type="password")
-    st.info("Precisas da chave para a IA responder!")
+# Criar colunas para organizar melhor
+col1, col2, col3 = st.columns([1, 2, 1])
 
-# 3. Área do Chat Inteligente
-st.subheader("💬 Conversa com a nossa IA")
+with col2:
+    st.info("Bem-vindos! Este site foi criado pelo Santiago para unir a tecnologia e a nossa família.")
+    
+    nome = st.text_input("Como te chamas, membro da família?")
+    if nome:
+        st.write(f"Olá, **{nome}**! É bom ver-te por aqui hoje.")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# Mostrar mensagens antigas
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-# Input do utilizador
-if prompt := st.chat_input("Diz algo à família..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # Lógica da IA (Gemini)
-    if api_key:
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-pro")
-            response = model.generate_content(prompt)
-            
-            with st.chat_message("assistant"):
-                st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
-        except Exception as e:
-            st.error("Erro na IA. Verifica a tua chave!")
-    else:
-        st.warning("⚠️ Por favor, coloca a tua API Key no menu lateral para eu poder responder.")
-
-# 4. Rodapé Especial
 st.write("---")
-if st.button('✨ Lançar Balões de Celebração!'):
+
+# Botão de Celebração
+if st.button('✨ LANÇAR CELEBRAÇÃO DA FAMÍLIA!'):
     st.balloons()
+    st.snow()
+    st.success("A Família Marques é a melhor! 🎉")
